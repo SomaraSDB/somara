@@ -55,10 +55,11 @@ h2 { font-size: 22px; }
 body.bloqueado > header, body.bloqueado > main, body.bloqueado > .banner-copia { visibility: hidden; }
 .bloqueo {
   position: fixed; inset: 0; z-index: 100; overflow-y: auto;
-  background: var(--fondo); display: flex; align-items: center; justify-content: center; padding: 20px 16px;
+  background: var(--fondo); display: flex; padding: 20px 16px;
 }
+/* margin:auto centra sin cortar el contenido cuando la pantalla es más baja que el teclado */
 .bloqueo[hidden] { display: none; }
-.bloqueo-caja { width: min(360px, 100%); display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.bloqueo-caja { margin: auto; width: min(360px, 100%); display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
 .bloqueo-logo { width: min(220px, 60vw); max-height: 22vh; object-fit: contain; margin-bottom: 4px; }
 .bloqueo-caja h2 { font-size: 26px; }
 .bloqueo-sub { margin: 0; color: var(--texto-suave); font-size: 15px; min-height: 1.4em; }
