@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1f1c1a">
+  <title>Somara</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bloqueado">
+  <!-- PANTALLA DE BLOQUEO (PIN) -->
+  <div class="bloqueo" id="bloqueo">
+    <div class="bloqueo-caja">
+      <img src="img/logo.png" alt="Somara" class="bloqueo-logo">
+      <h2 id="bloqueo-titulo">Cargando…</h2>
+      <p class="bloqueo-sub" id="bloqueo-sub"></p>
+      <div class="pin-puntos" id="pin-puntos"></div>
+      <div class="pin-error" id="pin-error" role="alert"></div>
+      <div class="teclado" id="teclado">
+        <button type="button" data-t="1">1</button>
+        <button type="button" data-t="2">2</button>
+        <button type="button" data-t="3">3</button>
+        <button type="button" data-t="4">4</button>
+        <button type="button" data-t="5">5</button>
+        <button type="button" data-t="6">6</button>
+        <button type="button" data-t="7">7</button>
+        <button type="button" data-t="8">8</button>
+        <button type="button" data-t="9">9</button>
+        <button type="button" data-t="borrar" class="tecla-suave" aria-label="Borrar">
+          <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M9 5h11v14H9l-6-7z M12 9l5 6 M17 9l-5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
+        </button>
+        <button type="button" data-t="0">0</button>
+        <button type="button" data-t="ok" class="tecla-ok">OK</button>
+      </div>
+      <div class="bloqueo-pie">
+        <button type="button" class="btn-texto" id="pin-olvidado">¿Has olvidado el PIN?</button>
+        <button type="button" class="btn-texto" id="pin-cancelar" hidden>Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <header class="barra">
+    <div class="marca" id="ir-inicio" role="button" tabindex="0" aria-label="Ir a la página principal" title="Página principal">
+      <span class="logo-marca" aria-hidden="true"></span>
+    </div>
+    <div class="seccion-actual" id="seccion-actual"></div>
+    <div class="reloj" id="reloj"></div>
+    <div class="menu" id="menu">
+      <button type="button" class="btn-menu" id="btn-menu" aria-label="Abrir menú" aria-haspopup="true" aria-expanded="false" aria-controls="nav">
+        <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+          <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+        </svg>
+      </button>
+      <nav class="nav" id="nav" hidden>
+        <button type="button" data-vista="ventas">Ventas</button>
+        <button type="button" data-vista="citas">Citas</button>
+        <button type="button" data-vista="historial">Historial</button>
+        <button type="button" data-vista="clientes">Clientes</button>
+        <button type="button" data-vista="catalogo">Catálogo</button>
+        <hr>
+        <button type="button" data-vista="copias">Copias de seguridad</button>
+        <button type="button" data-accion="cambiar-pin">Cambiar PIN</button>
+        <button type="button" data-accion="bloquear">Bloquear</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="banner-copia" id="banner-copia" role="status" hidden>
+    <span id="banner-copia-texto">Copia de seguridad de hoy pendiente.</span>
+    <button type="button" class="btn-secundario" id="banner-copia-btn">Hacer copia ahora</button>
+  </div>
+
+  <main>
+    <!-- INICIO (página principal) -->
+    <section id="vista-inicio" class="vista activa">
+      <div class="inicio">
+        <div class="inicio-logo" id="inicio-logo">
+          <img src="img/logo.png" alt="Logo de Somara"
+               onerror="this.parentElement.classList.add('sin-logo')">
+          <span class="logo-provisional" aria-hidden="true">S</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- VENTAS -->
+    <section id="vista-ventas" class="vista">
+      <div class="tpv">
+        <div class="tpv-catalogo">
+          <div class="tpv-filtros">
+            <div class="segmento" id="filtro-tipo">
+              <button data-tipo="tratamiento" class="activo">Tratamientos</button>
+              <button data-tipo="producto">Productos</button>
+            </div>
+            <input type="search" id="buscar" placeholder="Buscar…" autocomplete="off">
+          </div>
+          <div class="chips" id="chips-categorias"></div>
+          <div class="rejilla" id="rejilla-articulos"></div>
+        </div>
+
+        <aside class="ticket" id="ticket">
+          <button class="ticket-resumen" id="ticket-resumen" type="button">
+            <span id="ticket-resumen-txt">Ticket vacío</span>
+            <strong id="ticket-resumen-total">0,00 €</strong>
+          </button>
+          <div class="ticket-cuerpo">
+            <div class="ticket-cab">
+              <h2>Ticket</h2>
+              <button class="btn-texto" id="vaciar-ticket" type="button">Vaciar</button>
+            </div>
+            <div class="ticket-cliente" id="ticket-cliente"></div>
+            <ul class="ticket-lineas" id="ticket-lineas"></ul>
+            <div class="ticket-vacio" id="ticket-vacio">Toca un tratamiento o producto para añadirlo.</div>
+            <div class="ticket-pie">
+              <div class="fila"><span>Subtotal</span><span id="t-subtotal">0,00 €</span></div>
+              <div class="fila descuento">
+                <span>Descuento</span>
+                <div class="segmento pequeno" id="descuentos">
+                  <button data-desc="0" class="activo">0%</button>
+                  <button data-desc="5">5%</button>
+                  <button data-desc="10">10%</button>
+                  <button data-desc="15">15%</button>
+                  <button data-desc="20">20%</button>
+                </div>
+              </div>
+              <div class="fila total"><span>Total</span><span id="t-total">0,00 €</span></div>
+              <button class="btn-principal" id="btn-cobrar" type="button" disabled>Cobrar</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- CITAS -->
+    <section id="vista-citas" class="vista">
+      <div class="citas">
+        <div class="citas-barra">
+          <div class="citas-nav">
+            <button type="button" class="btn-icono" id="cita-ant" aria-label="Día anterior">‹</button>
+            <button type="button" class="btn-secundario" id="cita-hoy">Hoy</button>
+            <button type="button" class="btn-icono" id="cita-sig" aria-label="Día siguiente">›</button>
+            <input type="date" id="cita-fecha" aria-label="Elegir día">
+          </div>
+          <h2 id="cita-titulo"></h2>
+          <div class="citas-acciones">
+            <button type="button" class="btn-secundario" id="btn-recordatorios">Recordatorios <span class="badge" id="badge-rec" style="display:none"></span></button>
+            <button type="button" class="btn-principal compacto" id="nueva-cita">+ Cita</button>
+          </div>
+        </div>
+        <div class="citas-estado" id="citas-estado"></div>
+        <div class="citas-todo-dia" id="citas-todo-dia" style="display:none"></div>
+        <div class="agenda" id="agenda"></div>
+      </div>
+    </section>
+
+    <!-- HISTORIAL -->
+    <section id="vista-historial" class="vista">
+      <div class="contenedor">
+        <div class="cab-seccion">
+          <h1>Historial de ventas</h1>
+          <div class="rango-fechas">
+            <label>Desde <input type="date" id="fecha-desde"></label>
+            <label>Hasta <input type="date" id="fecha-hasta"></label>
+          </div>
+        </div>
+        <div class="atajos-fecha" id="atajos-fecha">
+          <button type="button" data-rango="hoy">Hoy</button>
+          <button type="button" data-rango="ayer">Ayer</button>
+          <button type="button" data-rango="semana">Esta semana</button>
+          <button type="button" data-rango="mes">Este mes</button>
+          <button type="button" data-rango="mes-anterior">Mes anterior</button>
+        </div>
+        <p class="ayuda" id="texto-rango"></p>
+        <div class="resumen-dia" id="resumen-dia"></div>
+        <ul class="lista-ventas" id="lista-ventas"></ul>
+        <div class="exportar-pie">
+          <button type="button" class="btn-secundario" id="exportar-excel">Exportar datos en Excel</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLIENTES -->
+    <section id="vista-clientes" class="vista">
+      <div class="contenedor">
+        <div class="cab-seccion">
+          <h1>Clientes</h1>
+          <button class="btn-secundario" id="nuevo-cliente" type="button">+ Cliente</button>
+        </div>
+        <div class="cab-seccion">
+          <input type="search" id="buscar-cliente" placeholder="Buscar por nombre o teléfono…" autocomplete="off" style="flex:1">
+          <select id="orden-clientes">
+            <option value="nombre">Ordenar por nombre</option>
+            <option value="gasto">Mayor gasto</option>
+            <option value="visita">Última visita</option>
+          </select>
+        </div>
+        <ul class="lista-clientes" id="lista-clientes"></ul>
+      </div>
+    </section>
+
+    <!-- COPIAS DE SEGURIDAD -->
+    <section id="vista-copias" class="vista">
+      <div class="contenedor">
+        <div class="cab-seccion">
+          <h1>Copias de seguridad</h1>
+          <button type="button" class="btn-principal compacto" id="copia-ahora">Hacer copia ahora</button>
+        </div>
+        <p class="ayuda">
+          Cada día, a partir de las 20:00, la app guarda sola una copia en Google Drive, en la carpeta
+          «Copias Somara». Se conservan las 30 más recientes. Incluye ventas, clientes y catálogo;
+          las citas no hacen falta porque ya están en Google Calendar.
+        </p>
+        <div class="resumen-dia" id="copias-estado"></div>
+
+        <h2 class="subtitulo">Copias en Google Drive</h2>
+        <ul class="lista-copias" id="lista-copias"></ul>
+
+        <h2 class="subtitulo">Copia en la tablet</h2>
+        <p class="ayuda">Por si no hay internet: se puede descargar una copia como archivo y recuperarla después.</p>
+        <div class="acciones-fila">
+          <button type="button" class="btn-secundario" id="copia-descargar">Descargar copia</button>
+          <label class="btn-secundario">Restaurar desde archivo
+            <input type="file" id="copia-archivo" accept=".json,application/json" hidden>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- CATÁLOGO -->
+    <section id="vista-catalogo" class="vista">
+      <div class="contenedor">
+        <div class="cab-seccion">
+          <h1>Catálogo</h1>
+          <button class="btn-secundario" id="nueva-categoria" type="button">+ Categoría</button>
+        </div>
+        <p class="ayuda">Aquí se crean y editan las categorías, los tratamientos, los productos y sus precios.</p>
+        <div id="lista-catalogo"></div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="modal"><form method="dialog" id="modal-form"></form></dialog>
+  <div class="aviso" id="aviso" role="status"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

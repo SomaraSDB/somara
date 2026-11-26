@@ -1,0 +1,7 @@
+# Configuración local de la herramienta de desarrollo (no forma parte de la app)
+.claude/
+
+# Archivos del sistema
+Thumbs.db
+desktop.ini
+.DS_Store
