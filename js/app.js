@@ -8,6 +8,7 @@ import { montarCitas, pintarCitas } from './citas.js';
 import { montarCopias, pintarCopias } from './copia.js';
 import { iniciarPin, bloquear, cambiarPin } from './pin.js';
 import { crearXlsx, descargarArchivo } from './excel.js';
+import { montarInicio, pintarInicio } from './inicio.js';
 import { DURACION_POR_DEFECTO } from './config.js';
 
 // ---------- Utilidades ----------
@@ -48,6 +49,7 @@ function irA(vista) {
   $$('#nav button').forEach((b) => b.classList.toggle('activo', b.dataset.vista === vista));
   $('#seccion-actual').textContent = $(`#nav [data-vista="${vista}"]`)?.textContent || '';
   $$('.vista').forEach((v) => v.classList.toggle('activa', v.id === `vista-${vista}`));
+  if (vista === 'inicio') pintarInicio();
   if (vista === 'ventas') pintarVentas();
   if (vista === 'citas') pintarCitas();
   if (vista === 'historial') pintarHistorial();
@@ -900,6 +902,7 @@ async function iniciar() {
   montarVentas(); montarHistorial(); montarClientes(); montarCatalogo();
   montarCitas({ estado, clientePorId, abrirEditorCliente, cobrarCita });
   montarCopias();
+  montarInicio({ estado, irA, euros });
   montarMenu();
   reloj(); setInterval(reloj, 30000);
   irA('inicio');

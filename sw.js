@@ -1,6 +1,6 @@
 // Service worker: guarda la app en la tablet para que funcione sin internet.
 // Sube este número cada vez que cambies archivos de la app.
-const CACHE = 'somara-v18';
+const CACHE = 'somara-v19';
 const ARCHIVOS = [
   './',
   './index.html',
@@ -14,6 +14,7 @@ const ARCHIVOS = [
   './js/copia.js',
   './js/pin.js',
   './js/excel.js',
+  './js/inicio.js',
   './img/logo.png',
   './manifest.webmanifest',
   './icons/icon-192.png',

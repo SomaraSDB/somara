@@ -381,7 +381,30 @@ async function pintarListaRecordatorios(f) {
   }).join('') : '<li class="ayuda">No hay citas para mañana.</li>';
 }
 
-async function abrirRecordatorios() {
+// ---------- Datos para la página principal ----------
+export async function datosHoy() {
+  const citas = (await citasDelDia(hoyISO())).filter((c) => !c.todoElDia).map((c) => ({
+    id: c.id,
+    inicio: c.inicio,
+    fin: c.fin,
+    hora: hhmm(minDe(new Date(c.inicio))),
+    cliente: nombreCliente(c),
+    tratamientos: c.tratamientos.join(', '),
+    empleada: empleada(c.empleada),
+  }));
+  const pendientes = (await citasConRecordatorio())
+    .filter((c) => !c.recordatorio && telefonoCliente(c) && aceptaWhatsapp(c)).length;
+  return { citas, pendientes, conectado: G.conectado() };
+}
+
+// Trae de Google las citas de hoy y mañana (si hay conexión). Devuelve true si se actualizó.
+export async function sincronizarHoy() {
+  if (!G.conectado()) return false;
+  try { await sincronizar(hoyISO(), sumarDias(hoyISO(), 2)); actualizarBadge(); return true; }
+  catch (e) { manejarError(e); return false; }
+}
+
+export async function abrirRecordatorios() {
   const manana = sumarDias(hoyISO(), 1);
   abrirModal(`
     <h2>Recordatorios para mañana</h2>
