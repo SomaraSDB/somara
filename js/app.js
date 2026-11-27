@@ -36,7 +36,10 @@ const estado = {
 
 async function cargarCatalogo() {
   estado.categorias = (await db.todos('categorias')).sort((a, b) => a.orden - b.orden);
-  estado.articulos = (await db.todos('articulos')).sort((a, b) => a.orden - b.orden);
+  // Agrupados por categoría (en «Todas» salen por bloques) y, dentro, en su orden.
+  const posCat = new Map(estado.categorias.map((c, i) => [c.id, i]));
+  estado.articulos = (await db.todos('articulos'))
+    .sort((a, b) => (posCat.get(a.categoriaId) ?? 999) - (posCat.get(b.categoriaId) ?? 999) || a.orden - b.orden);
 }
 
 async function cargarClientes() {

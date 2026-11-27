@@ -127,37 +127,79 @@ export const db = {
   },
 };
 
-// Catálogo de ejemplo para el primer arranque. Precios y duraciones orientativos:
-// se cambian en "Catálogo". Formato: [nombre, precio €, duración en minutos].
-const EJEMPLO = [
-  { nombre: 'Peluquería', tipo: 'tratamiento', articulos: [
-    ['Corte mujer', 25, 45], ['Corte hombre', 15, 30], ['Lavar y peinar', 18, 30],
-    ['Tinte raíz', 32, 90], ['Mechas', 55, 120], ['Recogido', 40, 60],
-  ]},
-  { nombre: 'Estética facial', tipo: 'tratamiento', articulos: [
-    ['Limpieza facial', 45, 60], ['Higiene facial express', 30, 30],
-    ['Diseño de cejas', 12, 15], ['Lifting de pestañas', 38, 60],
-  ]},
-  { nombre: 'Manos y pies', tipo: 'tratamiento', articulos: [
-    ['Manicura', 15, 30], ['Manicura semipermanente', 22, 45],
-    ['Pedicura', 25, 45], ['Retirar semipermanente', 8, 15],
-  ]},
+// Catálogo real de Somara (noviembre 2026). Se cambia después en "Catálogo".
+// Formato: [nombre, precio €, duración en minutos]. Sin duración = DURACION_POR_DEFECTO.
+const CATALOGO_VERSION = 'somara-2026-11';
+const CATALOGO = [
   { nombre: 'Depilación', tipo: 'tratamiento', articulos: [
-    ['Labio superior', 5, 15], ['Axilas', 9, 15], ['Medias piernas', 15, 30], ['Piernas completas', 25, 45],
+    ['Axilas hombre', 6.5], ['Axilas mujer', 5], ['Brazos', 9], ['Brazos hombre', 12],
+    ['Diseño cejas', 6], ['Eléctrica', 3.5], ['Espalda', 12], ['Glúteo hombre', 7],
+    ['Glúteo mujer', 5.5], ['Ingle brasileña', 9], ['Ingle completa', 14], ['Ingle normal', 5.5],
+    ['Ingle o axila y labio o cejas', 8.5], ['Ingle, axilas, labio o cejas', 13.5],
+    ['Ingle, axilas, labio y cejas', 15.5], ['Ingles o axilas, labio y cejas', 9.5],
+    ['Labio superior', 4], ['Labio y cejas', 7.5], ['Labio y cejas y mentón', 8.5],
+    ['Labio y mentón', 5], ['Medias piernas', 9], ['Muslos', 10], ['Muslos y ingles', 13],
+    ['Pecho', 12.5], ['Perineo', 6], ['Piernas enteras', 16.5], ['Piernas enteras hombre', 21],
   ]},
-  { nombre: 'Cuidado capilar', tipo: 'producto', articulos: [
-    ['Champú hidratante', 14.5], ['Mascarilla reparadora', 18], ['Aceite capilar', 22],
+  { nombre: 'Decoloración', tipo: 'tratamiento', articulos: [
+    ['Decoloración brazos', 7.5], ['Decoloración cara', 5], ['Decoloración glúteo', 5],
+    ['Decoloración piernas', 9], ['Decoloración tripa', 5],
   ]},
-  { nombre: 'Cosmética', tipo: 'producto', articulos: [
-    ['Crema facial día', 29], ['Sérum vitamina C', 34], ['Esmalte de uñas', 9.9],
+  { nombre: 'Facial', tipo: 'tratamiento', articulos: [
+    ['Casmara Basic', 45], ['Casmara Advance / Infinity / Retinol', 55], ['Higiene facial', 23],
+    ['Masaje', 10], ['Mascarilla Casmara', 12], ['Mascarilla Postquam', 6], ['Peeling', 6],
+  ]},
+  { nombre: 'Manicura', tipo: 'tratamiento', articulos: [
+    ['Acrílico', 28], ['Cortar uñas', 6], ['Decoración completa uñas', 2], ['Decoración uña', 0.5],
+    ['Esmalte permanente refuerzo', 20.5], ['Esmaltado permanente', 18],
+    ['Esmalte permanente y labio o cejas', 21], ['Esmalte permanente y labio y cejas', 23.5],
+    ['Limar y pintar', 8], ['Manicura completa', 9.5],
+    ['Manicura semipermanente decoración todas las uñas', 24.5], ['Manicura solo refuerzo', 12],
+    ['Manicura y labio o cejas', 11.5], ['Manicura y labio y cejas', 12.5], ['Refuerzo', 3],
+    ['Reparación uña rota', 1], ['Retirada acrílico o gel', 10], ['Retirada esmalte permanente', 5],
+    ['Semi refuerzo y labio y cejas', 25.5], ['Semi refuerzo y labio', 23.5], ['Sesión parafina', 6],
+  ]},
+  { nombre: 'Maquillaje', tipo: 'tratamiento', articulos: [
+    ['Maquillaje completo', 24], ['Maquillaje y prueba', 42],
+  ]},
+  { nombre: 'Microblading', tipo: 'tratamiento', articulos: [
+    ['Microblading sesión suelta', 100], ['Microblading sesión y repaso', 190],
+  ]},
+  { nombre: 'Mirada', tipo: 'tratamiento', articulos: [
+    ['Lifting cejas', 30], ['Lifting pestañas', 23.5], ['Tinte cejas y cejas', 7],
+    ['Tinte cejas, cejas y labio', 8], ['Tinte pestañas', 5],
+  ]},
+  { nombre: 'Pedicura', tipo: 'tratamiento', articulos: [
+    ['Cortar uñas pies', 7], ['Cortar uñas y pintar normal', 8], ['Esmaltado permanente pies', 18],
+    ['Pedicura básica', 10], ['Pedicura completa', 17.5], ['Pedicura y esmaltado permanente', 32],
+    ['Pies y labio y cejas', 20], ['Pintar normal', 3],
+  ]},
+  { nombre: 'Presoterapia', tipo: 'tratamiento', articulos: [
+    ['Presoterapia bono 10 sesiones (30 min)', 40, 30], ['Presoterapia bono 10 sesiones (45 min)', 60, 45],
+    ['Presoterapia sesión suelta', 6, 30],
+  ]},
+  { nombre: 'Productos', tipo: 'producto', articulos: [
+    ['Ampolla flash', 3], ['Cofre 50 años (Casmara)', 59.9], ['Cofre Retinol (Casmara)', 83.5],
+    ['Crema de día lighting (Casmara)', 59], ['Esmalte', 3.5], ['Secante uñas', 6],
+    ['Serum de noche lighting (Casmara)', 55],
   ]},
 ];
 
+// Primer arranque: carga el catálogo. Si la tablet aún tiene el catálogo de ejemplo
+// de las primeras versiones (categoría «Peluquería»), lo cambia por el real.
+// Nunca toca un catálogo que ya se haya personalizado, ni ventas ni clientes.
 export async function sembrarSiVacio() {
+  if ((await db.ajuste('catalogo')) === CATALOGO_VERSION) return;
   const cats = await db.todos('categorias');
-  if (cats.length) return;
+  const esEjemplo = cats.some((c) => c.nombre === 'Peluquería');
+  if (cats.length && !esEjemplo) {
+    await db.guardarAjuste('catalogo', CATALOGO_VERSION);
+    return;
+  }
+  for (const c of cats) await db.borrar('categorias', c.id);
+  for (const a of await db.todos('articulos')) await db.borrar('articulos', a.id);
   let orden = 0;
-  for (const c of EJEMPLO) {
+  for (const c of CATALOGO) {
     const cat = { id: nuevoId(), nombre: c.nombre, tipo: c.tipo, orden: orden++ };
     await db.guardar('categorias', cat);
     let o = 0;
@@ -170,4 +212,5 @@ export async function sembrarSiVacio() {
       await db.guardar('articulos', art);
     }
   }
+  await db.guardarAjuste('catalogo', CATALOGO_VERSION);
 }
