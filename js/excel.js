@@ -32,6 +32,7 @@ function celdaXml(celda, ref) {
   const c = typeof celda === 'object' ? celda : { v: celda };
   const s = ESTILOS[c.s || 'normal'] ?? 0;
   const estilo = s ? ` s="${s}"` : '';
+  if ((c.v == null || c.v === '') && !c.f) return s ? `<c r="${ref}"${estilo}/>` : ''; // celda vacía con estilo (p. ej. borde)
   if (c.f) return `<c r="${ref}"${estilo}><f>${escXml(c.f)}</f>${c.v != null ? `<v>${Number(c.v)}</v>` : ''}</c>`;
   if (typeof c.v === 'number' && Number.isFinite(c.v)) return `<c r="${ref}"${estilo}><v>${c.v}</v></c>`;
   return `<c r="${ref}"${estilo} t="inlineStr"><is><t xml:space="preserve">${escXml(c.v ?? '')}</t></is></c>`;

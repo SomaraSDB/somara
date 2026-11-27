@@ -437,7 +437,7 @@ function abrirDetalleVenta(v) {
 function abrirExportarExcel() {
   abrirModal(`
     <h2>Exportar datos en Excel</h2>
-    <p class="ayuda" style="margin:0">Se creará un Excel con lo que ha gastado cada cliente entre estas fechas (ambas incluidas) y el total. Los tickets anulados no cuentan.</p>
+    <p class="ayuda" style="margin:0">Se creará un Excel con lo que ha gastado cada cliente entre estas fechas (ambas incluidas), el método de pago, el total y los totales por método de pago. Los tickets anulados no cuentan.</p>
     <div class="f-fila" style="grid-template-columns:1fr 1fr">
       <label>Desde <input type="date" id="x-desde" value="${$('#fecha-desde').value || hoyISO()}"></label>
       <label>Hasta <input type="date" id="x-hasta" value="${$('#fecha-hasta').value || hoyISO()}"></label>
@@ -479,18 +479,29 @@ async function exportarGastoClientes(desdeISO, hastaISO) {
   )).filter((v) => !v.anulada);
   if (!ventas.length) return false;
 
-  // Suma por cliente (en céntimos para no arrastrar decimales).
+  // Suma por cliente y por método de pago (en céntimos para no arrastrar decimales).
   const porCliente = new Map();
-  let sinCliente = 0;
+  const sinCliente = { nombre: 'Ventas sin cliente asignado', gasto: 0, metodos: new Set() };
+  const porMetodo = Object.fromEntries(Object.keys(METODOS).map((k) => [k, 0]));
   for (const v of ventas) {
-    if (!v.clienteId) { sinCliente += v.total; continue; }
-    const fila = porCliente.get(v.clienteId) || { nombre: nombreClienteVenta(v), gasto: 0 };
+    porMetodo[v.metodo] = (porMetodo[v.metodo] || 0) + v.total;
+    let fila = sinCliente;
+    if (v.clienteId) {
+      fila = porCliente.get(v.clienteId) || { nombre: nombreClienteVenta(v), gasto: 0, metodos: new Set() };
+      porCliente.set(v.clienteId, fila);
+    }
     fila.gasto += v.total;
-    porCliente.set(v.clienteId, fila);
+    fila.metodos.add(v.metodo);
   }
   const lineas = [...porCliente.values()].sort((a, b) => b.gasto - a.gasto || a.nombre.localeCompare(b.nombre, 'es'));
-  if (sinCliente) lineas.push({ nombre: 'Ventas sin cliente asignado', gasto: sinCliente });
+  if (sinCliente.gasto) lineas.push(sinCliente);
   const total = lineas.reduce((s, l) => s + l.gasto, 0);
+
+  // «Efectivo», «Efectivo y Tarjeta», «Efectivo, Tarjeta y Bizum»…
+  const textoMetodos = (set) => {
+    const n = Object.keys(METODOS).filter((k) => set.has(k)).map((k) => METODOS[k]);
+    return n.length > 1 ? `${n.slice(0, -1).join(', ')} y ${n.at(-1)}` : n[0] || '';
+  };
 
   const opc = { day: 'numeric', month: 'long', year: 'numeric' };
   const periodo = desdeISO === hastaISO
@@ -498,15 +509,25 @@ async function exportarGastoClientes(desdeISO, hastaISO) {
     : `Del ${fD.toLocaleDateString('es-ES', opc)} al ${fH.toLocaleDateString('es-ES', opc)}`;
   const primera = 5; // fila donde empiezan los clientes
   const ultima = primera + lineas.length - 1;
+  const filaTotal = ultima + 1;
+  // Segunda tabla: totales por método de pago, dos filas por debajo de la primera.
+  const primeraMetodo = filaTotal + 4;
+  const metodos = Object.keys(METODOS);
+  const ultimaMetodo = primeraMetodo + metodos.length - 1;
   const filas = [
     [{ v: 'Somara · Gasto por cliente', s: 'titulo' }],
     [{ v: periodo, s: 'subtitulo' }],
     [],
-    [{ v: 'Cliente', s: 'cabecera' }, { v: 'Gasto', s: 'cabecera' }],
-    ...lineas.map((l) => [l.nombre, { v: l.gasto / 100, s: 'euros' }]),
-    [{ v: 'TOTAL', s: 'total' }, { f: `SUM(B${primera}:B${ultima})`, v: total / 100, s: 'totalEuros' }],
+    [{ v: 'Cliente', s: 'cabecera' }, { v: 'Método de pago', s: 'cabecera' }, { v: 'Gasto', s: 'cabecera' }],
+    ...lineas.map((l) => [l.nombre, textoMetodos(l.metodos), { v: l.gasto / 100, s: 'euros' }]),
+    [{ v: 'TOTAL', s: 'total' }, { v: '', s: 'total' }, { f: `SUM(C${primera}:C${ultima})`, v: total / 100, s: 'totalEuros' }],
+    [],
+    [{ v: 'Totales por método de pago', s: 'subtitulo' }],
+    [{ v: 'Método de pago', s: 'cabecera' }, { v: 'Total', s: 'cabecera' }],
+    ...metodos.map((k) => [METODOS[k], { v: porMetodo[k] / 100, s: 'euros' }]),
+    [{ v: 'TOTAL', s: 'total' }, { f: `SUM(B${primeraMetodo}:B${ultimaMetodo})`, v: total / 100, s: 'totalEuros' }],
   ];
-  const blob = crearXlsx({ hoja: 'Gasto por cliente', anchos: [42, 16], filas });
+  const blob = crearXlsx({ hoja: 'Gasto por cliente', anchos: [42, 26, 16], filas });
   const nombre = desdeISO === hastaISO
     ? `Somara gasto por cliente ${desdeISO}.xlsx`
     : `Somara gasto por cliente ${desdeISO} a ${hastaISO}.xlsx`;
